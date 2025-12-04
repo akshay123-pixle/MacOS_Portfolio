@@ -3,8 +3,10 @@ import { useGSAP } from "@gsap/react";
 import React, { useRef } from "react";
 import gsap from "gsap";
 import { Tooltip } from "react-tooltip";
+import useWindowStore from "#store/window";
 
 const Dock = () => {
+  const { windows, openWindow, closeWindow, focusWindow } = useWindowStore();
   const dockRef = useRef(null);
 
   // GSAP hover animation
@@ -22,8 +24,8 @@ const Dock = () => {
         const distance = Math.abs(mouseX - center);
         const intensity = Math.exp(-(distance ** 2) / 2000);
         gsap.to(icon, {
-          scale: 1+0.25*intensity,
-          y:-15*intensity,
+          scale: 1 + 0.25 * intensity,
+          y: -15 * intensity,
           duration: 0.2,
           ease: "power1.out",
         });
@@ -51,8 +53,14 @@ const Dock = () => {
   }, []);
 
   const toggleApp = (app) => {
-    console.log("Toggling app:", app);
-    // TODO: implement opening/closing apps
+    if (!app.canOpen) return;
+    const window = windows[app.id];
+    if (window.isOpen) {
+      closeWindow(app.id);
+    } else {
+      openWindow(app.id);
+    }
+    console.log(windows);
   };
 
   return (
